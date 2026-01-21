@@ -1,0 +1,199 @@
+======================================================================
+           LORAWAN DATASET - STATISTICAL REPORT
+======================================================================
+
+Dataset Information:
+  Total Records:     45,000
+  Total Experiments: 90
+  Total Nodes:       500
+  Records per Node:  90.0
+
+----------------------------------------------------------------------
+PARAMETER DISTRIBUTION
+----------------------------------------------------------------------
+
+Data Rate (DR):
+  DR0:   7,500 (16.67%)
+  DR1:   7,500 (16.67%)
+  DR2:   7,500 (16.67%)
+  DR3:   7,500 (16.67%)
+  DR4:   7,500 (16.67%)
+  DR5:   7,500 (16.67%)
+
+Transmission Power (dBm):
+  6.0 dBm:   9,000 (20.00%)
+  8.0 dBm:   9,000 (20.00%)
+  10.0 dBm:   9,000 (20.00%)
+  12.0 dBm:   9,000 (20.00%)
+  14.0 dBm:   9,000 (20.00%)
+
+Frequency (MHz):
+  868.1:  15,000 (33.33%)
+  868.3:  15,000 (33.33%)
+  868.5:  15,000 (33.33%)
+
+----------------------------------------------------------------------
+PERFORMANCE METRICS
+----------------------------------------------------------------------
+
+Packet Delivery Ratio (%):
+  Min:        0.00
+  Max:      100.00
+  Mean:      76.68
+  Median:   100.00
+  Std Dev:   42.28
+
+Packet Statistics:
+  Total Tx:      270,000
+  Total Rx:      207,044
+  Total Lost:     62,956
+  Overall PDR:  76.68%
+
+Time on Air (ms):
+  Avg ToA Min:     34.05
+  Avg ToA Max:    991.23
+  Avg ToA Mean:   329.86
+  Total ToA:    178122.24 seconds
+
+----------------------------------------------------------------------
+⚡ ENERGY CONSUMPTION METRICS
+----------------------------------------------------------------------
+
+Energy Consumed (Joules):
+  Min:        0.083005
+  Max:        1.446982
+  Mean:       0.387874
+  Median:     0.265305
+  Std Dev:    0.343459
+  Total:    17454.309945
+
+Remaining Energy (Joules):
+  Min:        19998.55
+  Max:        19999.92
+  Mean:       19999.61
+
+Energy per Packet (Joules):
+  Per Tx:     0.064646
+  Per Rx:     0.073601
+
+----------------------------------------------------------------------
+DISTANCE ANALYSIS
+----------------------------------------------------------------------
+
+Distance Statistics (meters):
+  Min:       202.73
+  Max:      4998.86
+  Mean:     3335.22
+  Median:   3500.18
+  Std Dev:  1161.80
+
+----------------------------------------------------------------------
+PERFORMANCE BY DATA RATE
+----------------------------------------------------------------------
+
+DR0:
+  Count:             7,500
+  Avg PDR:           90.87%
+  Avg ToA:          991.23 ms
+  Avg Distance:    3335.22 m
+  Avg Energy:      1.056200 J
+  Energy/Packet:   0.176033 J
+
+DR1:
+  Count:             7,500
+  Avg PDR:           93.33%
+  Avg ToA:          512.00 ms
+  Avg Distance:    3335.22 m
+  Avg Energy:      0.594188 J
+  Energy/Packet:   0.099031 J
+
+DR2:
+  Count:             7,500
+  Avg PDR:           88.80%
+  Avg ToA:          247.81 ms
+  Avg Distance:    3335.22 m
+  Avg Energy:      0.295772 J
+  Energy/Packet:   0.049295 J
+
+DR3:
+  Count:             7,500
+  Avg PDR:           78.16%
+  Avg ToA:          128.00 ms
+  Avg Distance:    3335.22 m
+  Avg Energy:      0.180638 J
+  Energy/Packet:   0.030106 J
+
+DR4:
+  Count:             7,500
+  Avg PDR:           62.65%
+  Avg ToA:           66.05 ms
+  Avg Distance:    3335.22 m
+  Avg Energy:      0.117438 J
+  Energy/Packet:   0.019573 J
+
+DR5:
+  Count:             7,500
+  Avg PDR:           46.28%
+  Avg ToA:           34.05 ms
+  Avg Distance:    3335.22 m
+  Avg Energy:      0.083005 J
+  Energy/Packet:   0.013834 J
+
+----------------------------------------------------------------------
+PERFORMANCE BY TX POWER
+----------------------------------------------------------------------
+
+6.0 dBm:
+  Count:             9,000
+  Avg PDR:           58.49%
+  Avg Distance:    3335.22 m
+  Avg Energy:      0.387868 J
+  Energy/Packet:   0.064645 J
+
+8.0 dBm:
+  Count:             9,000
+  Avg PDR:           68.64%
+  Avg Distance:    3335.22 m
+  Avg Energy:      0.388062 J
+  Energy/Packet:   0.064677 J
+
+10.0 dBm:
+  Count:             9,000
+  Avg PDR:           77.97%
+  Avg Distance:    3335.22 m
+  Avg Energy:      0.387508 J
+  Energy/Packet:   0.064585 J
+
+12.0 dBm:
+  Count:             9,000
+  Avg PDR:           86.08%
+  Avg Distance:    3335.22 m
+  Avg Energy:      0.387939 J
+  Energy/Packet:   0.064657 J
+
+14.0 dBm:
+  Count:             9,000
+  Avg PDR:           92.24%
+  Avg Distance:    3335.22 m
+  Avg Energy:      0.387992 J
+  Energy/Packet:   0.064665 J
+
+----------------------------------------------------------------------
+ENERGY EFFICIENCY ANALYSIS
+----------------------------------------------------------------------
+
+Most Energy Efficient Configuration:
+  DR5 @ 8 dBm
+  Packets Rx: 6
+  Energy Used: 0.083005 J
+  Efficiency: 72.28 packets/J
+
+Least Energy Efficient Configuration:
+  DR0 @ 14 dBm
+  Packets Rx: 1
+  Energy Used: 1.053807 J
+  Efficiency: 0.95 packets/J
+
+======================================================================
+END OF REPORT
+======================================================================

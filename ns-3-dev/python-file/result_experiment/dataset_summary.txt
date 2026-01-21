@@ -1,0 +1,140 @@
+======================================================================
+           LORAWAN DATASET - STATISTICAL REPORT
+======================================================================
+
+Dataset Information:
+  Total Records:     45,000
+  Total Experiments: 90
+  Total Nodes:       500
+  Records per Node:  90.0
+
+----------------------------------------------------------------------
+PARAMETER DISTRIBUTION
+----------------------------------------------------------------------
+
+Data Rate (DR):
+  DR0:   7,500 (16.67%)
+  DR1:   7,500 (16.67%)
+  DR2:   7,500 (16.67%)
+  DR3:   7,500 (16.67%)
+  DR4:   7,500 (16.67%)
+  DR5:   7,500 (16.67%)
+
+Transmission Power (dBm):
+   6 dBm:   9,000 (20.00%)
+   8 dBm:   9,000 (20.00%)
+  10 dBm:   9,000 (20.00%)
+  12 dBm:   9,000 (20.00%)
+  14 dBm:   9,000 (20.00%)
+
+Frequency (MHz):
+  868.1:  15,000 (33.33%)
+  868.3:  15,000 (33.33%)
+  868.5:  15,000 (33.33%)
+
+----------------------------------------------------------------------
+PERFORMANCE METRICS
+----------------------------------------------------------------------
+
+Packet Delivery Ratio (%):
+  Min:        0.00
+  Max:      100.00
+  Mean:      76.68
+  Median:   100.00
+  Std Dev:   42.28
+
+Packet Statistics:
+  Total Tx:      270,000
+  Total Rx:      207,044
+  Total Lost:     62,956
+  Overall PDR:  76.68%
+
+Time on Air (ms):
+  Avg ToA Min:     34.05
+  Avg ToA Max:    991.23
+  Avg ToA Mean:   329.86
+  Total ToA:    178122.39 seconds
+
+----------------------------------------------------------------------
+DISTANCE ANALYSIS
+----------------------------------------------------------------------
+
+Distance Statistics (meters):
+  Min:       202.73
+  Max:      4998.86
+  Mean:     3335.22
+  Median:   3500.18
+  Std Dev:  1161.80
+
+----------------------------------------------------------------------
+PERFORMANCE BY DATA RATE
+----------------------------------------------------------------------
+
+DR0:
+  Count:         7,500
+  Avg PDR:       90.87%
+  Avg ToA:      991.23 ms
+  Avg Distance:3335.22 m
+
+DR1:
+  Count:         7,500
+  Avg PDR:       93.33%
+  Avg ToA:      512.00 ms
+  Avg Distance:3335.22 m
+
+DR2:
+  Count:         7,500
+  Avg PDR:       88.80%
+  Avg ToA:      247.81 ms
+  Avg Distance:3335.22 m
+
+DR3:
+  Count:         7,500
+  Avg PDR:       78.16%
+  Avg ToA:      128.00 ms
+  Avg Distance:3335.22 m
+
+DR4:
+  Count:         7,500
+  Avg PDR:       62.65%
+  Avg ToA:       66.05 ms
+  Avg Distance:3335.22 m
+
+DR5:
+  Count:         7,500
+  Avg PDR:       46.28%
+  Avg ToA:       34.05 ms
+  Avg Distance:3335.22 m
+
+----------------------------------------------------------------------
+PERFORMANCE BY TX POWER
+----------------------------------------------------------------------
+
+6 dBm:
+  Count:         9,000
+  Avg PDR:       58.49%
+  Avg Distance:3335.22 m
+
+8 dBm:
+  Count:         9,000
+  Avg PDR:       68.64%
+  Avg Distance:3335.22 m
+
+10 dBm:
+  Count:         9,000
+  Avg PDR:       77.97%
+  Avg Distance:3335.22 m
+
+12 dBm:
+  Count:         9,000
+  Avg PDR:       86.08%
+  Avg Distance:3335.22 m
+
+14 dBm:
+  Count:         9,000
+  Avg PDR:       92.24%
+  Avg Distance:3335.22 m
+
+======================================================================
+END OF REPORT
+======================================================================

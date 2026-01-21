@@ -1,0 +1,1 @@
+distance,distance_normalized,radial_distance,dr,freq,txPower

@@ -1,0 +1,241 @@
+(venv) nru@nruVm:~/CBNS_NEW2/ns-3-dev/python-file/create-model$ python cbns_ml.py 
+======================================================================
+LoRaWAN ML-Based ADR - Energy-Aware Configuration
+Multi-Objective: PDR + Energy Efficiency
+======================================================================
+
+✓ Loaded 45000 records
+✓ Unique experiments: 90
+✓ Unique nodes: 500
+
+📊 Sample data:
+   node_id     distance  dr  SF  txPower    RSSI    PDR  AvgToA_ms  EnergyPerPacket_J
+0        0  4307.668603   4   8     12.0 -132.35  100.0     66.048           0.019572
+1        1  2586.364260   5   7      8.0 -128.02  100.0     34.048           0.013834
+2        2  4021.574674   0  12     10.0 -133.23  100.0    991.232           0.175635
+3        3  3732.456443   5   7      8.0 -134.01    0.0     34.048           0.013834
+4        4  4928.573089   0  12     14.0 -132.55  100.0    991.232           0.175635
+
+======================================================================
+Feature Engineering...
+======================================================================
+
+✓ Energy Validation:
+  Dataset Energy (mean): 64.646 mJ
+  Calculated Energy (mean): 4.041 mJ
+  Correlation: 0.7546
+✓ Created energy-aware features
+
+======================================================================
+Energy Consumption Analysis
+======================================================================
+
+Energy Consumption by Spreading Factor:
+   EnergyPerPacket_mJ                          AvgToA_ms txPower
+                 mean    std      min      max      mean    mean
+SF                                                              
+7              13.834  0.000   13.834   13.834    34.048    10.0
+8              19.573  0.056   19.572   24.458    66.048    10.0
+9              30.106  0.181   30.103   39.164   128.000    10.0
+10             49.295  0.635   49.271   65.990   247.808    10.0
+11             99.031  1.569   98.961  134.841   512.000    10.0
+12            176.033  5.078  175.635  241.164   991.232    10.0
+
+📊 Energy vs PDR correlation: 0.2820
+
+🔋 Battery Lifetime Estimation (2000mAh @ 3V = 21,600 J):
+  SF7: 13.83 mJ/pkt → 1561352 pkts → 42.8 years
+  SF8: 19.57 mJ/pkt → 1103562 pkts → 30.2 years
+  SF9: 30.11 mJ/pkt → 717458 pkts → 19.7 years
+  SF10: 49.30 mJ/pkt → 438175 pkts → 12.0 years
+  SF11: 99.03 mJ/pkt → 218113 pkts → 6.0 years
+  SF12: 176.03 mJ/pkt → 122704 pkts → 3.4 years
+
+======================================================================
+Fitting Path Loss Model from NS-3 Data...
+======================================================================
+✓ Fitted Path Loss Model:
+  PL0: 7.70 dB
+  n:   3.76
+  RMSE: 0.00 dB
+
+✓ Energy Lookup Table (mJ per packet):
+     Power (dBm):     6     8    10    12    14
+  SF12:   3.95   6.25   9.91  15.71  24.90
+  SF11:   1.97   3.13   4.96   7.85  12.45
+  SF10:   0.99   1.56   2.48   3.93   6.22
+  SF9:   0.51   0.81   1.28   2.03   3.22
+  SF8:   0.26   0.42   0.66   1.05   1.66
+  SF7:   0.14   0.21   0.34   0.54   0.86
+
+======================================================================
+Training Model B with Energy Features...
+======================================================================
+
+🟢 Model B (Energy-Aware):
+  R² Score: 0.8198
+  MAE:      5.51%
+  RMSE:     17.91%
+
+======================================================================
+Feature Importance:
+======================================================================
+             Feature  Importance
+      link_margin_dB    0.873618
+power_distance_ratio    0.023206
+                freq    0.019399
+            distance    0.012778
+ distance_normalized    0.012720
+     radial_distance    0.012624
+                 SNR    0.010053
+       snr_margin_dB    0.010051
+                RSSI    0.010041
+is_above_sensitivity    0.008685
+
+✓ Saved visualization: ml_energy_aware_evaluation.png
+
+======================================================================
+Energy-Aware Configuration Recommendations
+======================================================================
+
+======================================================================
+Energy-Aware Config for Distance: 1000m
+Weights: PDR=60%, Energy=40%
+======================================================================
+
+✓ Found 90 safe configurations
+
+Top 3 Energy-Optimized Configs:
+======================================================================
+ SF  Freq_MHz  TxPower_dBm  Predicted_PDR_%  Energy_mJ  Battery_Years  LinkMargin_dB
+  7     868.1            6            100.0      0.136           4.37           15.5
+  7     868.5            6            100.0      0.136           4.37           15.5
+  7     868.3            6            100.0      0.136           4.37           15.5
+
+======================================================================
+🎯 BEST ENERGY-EFFICIENT CONFIG:
+======================================================================
+  SF7.0 | 868.1 MHz | 6.0 dBm
+  Expected PDR:      100.0%
+  Energy per packet: 0.136 mJ
+  Battery lifetime:  4.4 years
+  Link margin:       15.5 dB
+======================================================================
+
+======================================================================
+Energy-Aware Config for Distance: 2500m
+Weights: PDR=60%, Energy=40%
+======================================================================
+
+✓ Found 87 safe configurations
+
+Top 3 Energy-Optimized Configs:
+======================================================================
+ SF  Freq_MHz  TxPower_dBm  Predicted_PDR_%  Energy_mJ  Battery_Years  LinkMargin_dB
+  7     868.3            8            100.0      0.215           2.75            2.5
+  7     868.1            8            100.0      0.215           2.75            2.5
+  7     868.5            8            100.0      0.215           2.75            2.5
+
+======================================================================
+🎯 BEST ENERGY-EFFICIENT CONFIG:
+======================================================================
+  SF7.0 | 868.3 MHz | 8.0 dBm
+  Expected PDR:      100.0%
+  Energy per packet: 0.215 mJ
+  Battery lifetime:  2.8 years
+  Link margin:       2.5 dB
+======================================================================
+
+======================================================================
+Energy-Aware Config for Distance: 4000m
+Weights: PDR=60%, Energy=40%
+======================================================================
+
+✓ Found 51 safe configurations
+
+Top 3 Energy-Optimized Configs:
+======================================================================
+ SF  Freq_MHz  TxPower_dBm  Predicted_PDR_%  Energy_mJ  Battery_Years  LinkMargin_dB
+ 10     868.3            8             99.2      1.564           0.38            2.4
+  8     868.5           14             99.5      1.659           0.36            3.4
+  8     868.1           14             99.5      1.659           0.36            3.4
+
+======================================================================
+🎯 BEST ENERGY-EFFICIENT CONFIG:
+======================================================================
+  SF10.0 | 868.3 MHz | 8.0 dBm
+  Expected PDR:      99.2%
+  Energy per packet: 1.564 mJ
+  Battery lifetime:  0.4 years
+  Link margin:       2.4 dB
+======================================================================
+
+======================================================================
+Energy-Aware Config for Distance: 5500m
+Weights: PDR=60%, Energy=40%
+======================================================================
+
+✓ Found 21 safe configurations
+
+Top 3 Energy-Optimized Configs:
+======================================================================
+ SF  Freq_MHz  TxPower_dBm  Predicted_PDR_%  Energy_mJ  Battery_Years  LinkMargin_dB
+ 10     868.3           14             86.3      6.225           0.10            3.2
+ 10     868.1           14             81.3      6.225           0.10            3.2
+ 12     868.1           12             64.1     15.710           0.04            6.2
+
+======================================================================
+🎯 BEST ENERGY-EFFICIENT CONFIG:
+======================================================================
+  SF10.0 | 868.3 MHz | 14.0 dBm
+  Expected PDR:      86.3%
+  Energy per packet: 6.225 mJ
+  Battery lifetime:  0.1 years
+  Link margin:       3.2 dB
+======================================================================
+
+======================================================================
+COMPARISON: ToA-based vs Energy-based Optimization
+======================================================================
+
+Comparison at different distances:
+======================================================================
+
+Distance: 1000m
+  ToA-Optimized:    SF7, 6dBm
+    → ToA: 34.0 ms, Energy: 0.14 mJ
+  Energy-Optimized: SF7, 6dBm
+    → ToA: 34.0 ms, Energy: 0.14 mJ
+  💡 Energy saving: 0.0%
+
+Distance: 3000m
+  ToA-Optimized:    SF7, 12dBm
+    → ToA: 34.0 ms, Energy: 0.54 mJ
+  Energy-Optimized: SF8, 8dBm
+    → ToA: 66.0 ms, Energy: 0.42 mJ
+  💡 Energy saving: 22.8%
+
+Distance: 5000m
+  ToA-Optimized:    SF9, 14dBm
+    → ToA: 128.0 ms, Energy: 3.22 mJ
+  Energy-Optimized: SF9, 14dBm
+    → ToA: 128.0 ms, Energy: 3.22 mJ
+  💡 Energy saving: 0.0%
+
+✓ Models saved:
+  - lorawan_adr_model_b_energy.pkl (energy-aware model)
+  - path_loss_params_energy.pkl (parameters with energy lookup)
+
+======================================================================
+✅ Energy-Aware Training Complete!
+======================================================================
+Model Performance:
+  R²:   0.8198
+  MAE:  5.51%
+
+Top 3 Most Important Features:
+  - link_margin_dB: 0.8736
+  - power_distance_ratio: 0.0232
+  - freq: 0.0194
+======================================================================
+(venv) nru@nruVm:~/CBNS_NEW2/ns-3-dev/python-file/create-model$ 
