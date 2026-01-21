@@ -1,0 +1,31 @@
+// Dataset Generation Flow
+digraph {
+	bgcolor=white nodesep=0.6 rankdir=LR splines=ortho
+	P [label="Python Processing
+(generate_allocation.py
+& generate_positions.py)" color="#0A3D91" fillcolor="#E6EEF8" fontname=Arial fontsize=11 shape=box style="rounded,filled"]
+	I1 [label="Input 1:
+node_positions.csv
+(500 ED + normal distribution)" color="#0A3D91" fillcolor="#E6EEF8" fontname=Arial fontsize=11 shape=box style="rounded,filled"]
+	I2 [label="Input 2:
+experiment_schedule.csv
+(500 ED with 3 Freq × 6 DR × 5 Tx Power)" color="#0A3D91" fillcolor="#E6EEF8" fontname=Arial fontsize=11 shape=box style="rounded,filled"]
+	NS [label="NS-3 (dataset-gen.cc)
+90 experiments with random parameters" color="#0A3D91" fillcolor="#E6EEF8" fontname=Arial fontsize=11 shape=box style="rounded,filled"]
+	O [label="Output dataset
+45,000 datapoints (13 columns)" color="#0A3D91" fillcolor="#E6EEF8" fontname=Arial fontsize=11 shape=box style="rounded,filled"]
+	PR [label="Python Processing
+(dataset_rssi_snr.py)" color="#0A3D91" fillcolor="#E6EEF8" fontname=Arial fontsize=11 shape=box style="rounded,filled"]
+	F [label="Final Dataset
+45,000 datapoints (24 columns)" color="#0A3D91" fillcolor="#E6EEF8" fontname=Arial fontsize=11 shape=box style="rounded,filled"]
+	ML [label="NEXT PROCESS:
+Machine Learning" color="#0A3D91" fillcolor="#E6EEF8" fontname=Arial fontsize=11 shape=box style="rounded,filled"]
+	P -> I1 [color="#0A3D91"]
+	P -> I2 [color="#0A3D91"]
+	I1 -> NS [color="#0A3D91"]
+	I2 -> NS [color="#0A3D91"]
+	NS -> O [color="#0A3D91"]
+	O -> PR [color="#0A3D91"]
+	PR -> F [color="#0A3D91"]
+	F -> ML [color="#0A3D91"]
+}

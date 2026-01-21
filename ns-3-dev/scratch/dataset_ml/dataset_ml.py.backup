@@ -1,0 +1,339 @@
+#!/usr/bin/env python3
+"""
+Generate fixed positions for all 500 nodes
+To be used consistently across all 90 experiments
+"""
+
+import numpy as np
+import pandas as pd
+
+
+import joblib
+import sys
+import os
+
+
+# NUM_NODES = 500
+# RADIUS_METERS = 5000
+
+
+
+
+
+def generate_positions(num_nodes, radius_meters):
+    np.random.seed(42) 
+    # Generate random positions in a disc
+    positions = []
+    for i in range(num_nodes):
+        # Random angle
+        theta = np.random.uniform(0, 2 * np.pi)
+        
+        # Random radius (uniform distribution in disc)
+        r = radius_meters * np.sqrt(np.random.uniform(0, 1))
+        
+        # Convert to Cartesian
+        x = r * np.cos(theta)
+        y = r * np.sin(theta)
+        z = 0  # Fixed height for end devices
+        
+        # Calculate distance from gateway at (0, 0, 15)
+        distance = np.sqrt(x**2 + y**2 + (z - 15)**2)
+        
+        positions.append({
+            'nodeIndex': i,
+            'x': x,
+            'y': y,
+            'z': z,
+            'distance': distance
+        })
+    
+    print(positions)
+    nama_file = f'node_positions.csv'
+    df = pd.DataFrame(positions)
+    df.to_csv(nama_file, index=False)
+    print(f"✓ Saved to: {nama_file}")
+
+    return positions
+
+
+try:
+    model = joblib.load('lorawan_adr_model_b.pkl')
+    params = joblib.load('path_loss_params.pkl')
+    print("✓ Loaded Model RandomForestRegressor successfully")
+except Exception as e:
+    print(f"❌ ERROR loading model: {e}")
+    sys.exit(1)
+
+
+# Extract parameters
+PL0 = params['PL0']
+n = params['n']
+NOISE_FLOOR_DBM = params['noise_floor_dBm']
+SENSITIVITY_MAP = params['sensitivity_map']
+TOA_LOOKUP = params['toa_lookup']
+
+print(f"✓ Path Loss Model: PL0={PL0:.2f} dB, n={n:.2f}")
+
+# ========== CONFIGURATION ==========
+
+# Available options
+DR_OPTIONS = [0, 1, 2, 3, 4, 5]  # DR0=SF12, DR5=SF7
+FREQ_OPTIONS = [868.1, 868.3, 868.5]  # MHz
+POWER_OPTIONS = [6, 8, 10, 12, 14]  # dBm
+
+# DR to SF mapping
+DR_TO_SF = {0: 12, 1: 11, 2: 10, 3: 9, 4: 8, 5: 7}
+SF_TO_DR = {12: 0, 11: 1, 10: 2, 9: 3, 8: 4, 7: 5}
+# Max distance for normalization
+MAX_DISTANCE = 6000  # meters
+
+
+
+# ========== HELPER FUNCTIONS ==========
+
+def path_loss_model(distance):
+    """Calculate path loss using log-distance model"""
+    d0 = 1.0
+    return PL0 + 10 * n * np.log10(distance / d0)
+
+def calculate_link_quality(distance, txPower, dr):
+    """
+    Calculate RSSI, SNR, Sensitivity, Link Margin
+    
+    Args:
+        distance: Distance to gateway (meters)
+        txPower: Transmission power (dBm)
+        dr: Data Rate (0-5)
+        
+    Returns:
+        tuple: (rssi, snr, sensitivity, link_margin, snr_margin, is_above)
+    """
+    # Path loss
+    path_loss = path_loss_model(distance)
+    
+    # RSSI
+    rssi = txPower - path_loss
+    
+    # SNR
+    snr = rssi - NOISE_FLOOR_DBM
+    
+    # Sensitivity
+    sensitivity = SENSITIVITY_MAP.get(dr, -130.0)
+    
+    # Margins
+    link_margin = rssi - sensitivity
+    snr_margin = snr - (-7.5)
+    is_above = 1 if rssi > sensitivity else 0
+    
+    return rssi, snr, sensitivity, link_margin, snr_margin, is_above
+
+def predict_pdr(distance, dr, freq, power):
+    """
+    Predict PDR for given configuration
+    
+    Args:
+        distance: Distance to gateway (meters)
+        dr: Data Rate (0-5)
+        freq: Frequency (MHz)
+        power: Transmission power (dBm)
+        
+    Returns:
+        float: Predicted PDR (%)
+    """
+    # Calculate link quality
+    rssi, snr, sensitivity, link_margin, snr_margin, is_above = \
+        calculate_link_quality(distance, power, dr)
+    
+    # Prepare features
+    distance_norm = distance / MAX_DISTANCE
+    radial = distance
+    power_dist_ratio = power / (distance + 1)
+    
+    # Feature vector (13 features for Model B)
+    X = pd.DataFrame([{
+        'distance': distance,
+        'distance_normalized': distance_norm,
+        'radial_distance': radial,
+        'dr': dr,
+        'freq': freq,
+        'txPower': power,
+        'RSSI': rssi,
+        'SNR': snr,
+        'Sensitivity': sensitivity,
+        'link_margin_dB': link_margin,
+        'snr_margin_dB': snr_margin,
+        'is_above_sensitivity': is_above,
+        'power_distance_ratio': power_dist_ratio
+    }])
+    
+    # Predict
+    pred_pdr = model.predict(X)[0]
+    
+    # Clamp to [0, 100]
+    pred_pdr = max(0, min(100, pred_pdr))
+    
+    return pred_pdr, rssi, link_margin, is_above
+
+def find_best_config(distance, safety_margin_dB=2, pdr_threshold=80, top_n=1):
+    """
+    Find best configuration for given distance
+    
+    Args:
+        distance: Distance to gateway (meters)
+        safety_margin_dB: Minimum link margin (dB)
+        pdr_threshold: Minimum acceptable PDR (%)
+        top_n: Number of top configs to return
+        
+    Returns:
+        DataFrame: Top N configurations
+    """
+    print(f"\n{'='*70}")
+    print(f"Finding Best Config for Node at {distance:.0f}m")
+    print(f"Safety Margin: {safety_margin_dB} dB | PDR Threshold: {pdr_threshold}%")
+    print(f"{'='*70}")
+
+    results = []
+    
+    # Test all possible configurations
+    total_configs = len(DR_OPTIONS) * len(FREQ_OPTIONS) * len(POWER_OPTIONS)
+    print(f"\nTesting {total_configs} configurations...")
+    
+    for dr in DR_OPTIONS:
+        for freq in FREQ_OPTIONS:
+            for power in POWER_OPTIONS:
+                
+                # Predict PDR and get link quality
+                pred_pdr, rssi, link_margin, is_above = \
+                    predict_pdr(distance, dr, freq, power)
+                
+                # Apply safety margin filter
+                if link_margin < safety_margin_dB:
+                    continue
+                
+                # Get time-on-air
+                toa = TOA_LOOKUP[dr]
+                
+                # Calculate multi-objective score
+                if pred_pdr >= pdr_threshold:
+                    pdr_score = pred_pdr / 100.0
+                    toa_score = 1 - (toa / max(TOA_LOOKUP.values()))
+                    margin_score = min(link_margin / 20, 0.15)
+                    
+                    # Weighted: 50% PDR, 35% ToA, 15% Robustness
+                    score = 0.50 * pdr_score + 0.35 * toa_score + 0.15 * margin_score
+                else:
+                    score = 0
+                
+                # Get SF
+                sf = DR_TO_SF[dr]
+                
+                # Safety level
+                if link_margin >= 10:
+                    safety = "🟢 High"
+                elif link_margin >= 5:
+                    safety = "🟡 Medium"
+                else:
+                    safety = "🟠 Low"
+                
+                results.append({
+                    'DR': dr,
+                    'SF': sf,
+                    'Freq_MHz': freq,
+                    'TxPower_dBm': power,
+                    'Predicted_PDR_%': round(pred_pdr, 1),
+                    'ToA_ms': round(toa, 1),
+                    'RSSI_dBm': round(rssi, 1),
+                    'LinkMargin_dB': round(link_margin, 1),
+                    'Safety': safety,
+                    'Score': round(score, 4)
+                })
+    
+    # Check if any configs found
+    if len(results) == 0:
+        print(f"\n⚠️  No configs meet safety margin of {safety_margin_dB} dB!")
+        
+        if safety_margin_dB > 1:
+            print(f"   Retrying with relaxed margin (1 dB)...")
+            return find_best_config(distance, safety_margin_dB=1, 
+                                   pdr_threshold=pdr_threshold, top_n=top_n)
+        else:
+            print(f"\n❌ Distance too large!")
+            print(f"   Suggestions:")
+            print(f"   - Reduce distance to gateway")
+            print(f"   - Add more gateways")
+            print(f"   - Use higher TxPower if possible")
+            return pd.DataFrame()
+    
+    # Create DataFrame and sort
+    df_results = pd.DataFrame(results)
+    df_results = df_results.sort_values('Score', ascending=False)
+    
+    print(f"✓ Found {len(df_results)} safe configurations\n")
+    
+    # Display top N
+    print(f"Top {min(top_n, len(df_results))} Recommended Configurations:")
+    print("="*70)
+    
+    display_cols = ['SF', 'Freq_MHz', 'TxPower_dBm', 'Predicted_PDR_%', 
+                    'ToA_ms', 'LinkMargin_dB', 'Safety']
+    print(df_results[display_cols].head(top_n).to_string(index=False))
+    
+    # Show best config details
+    best = df_results.iloc[0]
+    
+    # print(f"\n{'='*70}")
+    # print(f"🎯 RECOMMENDED CONFIGURATION:")
+    # print(f"{'='*70}")
+    # print(f"  Spreading Factor:  SF{best['SF']}")
+    # print(f"  Frequency:         {best['Freq_MHz']} MHz")
+    # print(f"  Transmission Power: {best['TxPower_dBm']} dBm")
+    # print(f"\n  Expected Performance:")
+    # print(f"  ├─ PDR:           {best['Predicted_PDR_%']:.1f}%")
+    # print(f"  ├─ Time-on-Air:   {best['ToA_ms']:.1f} ms")
+    # print(f"  ├─ RSSI:          {best['RSSI_dBm']:.1f} dBm")
+    # print(f"  ├─ Link Margin:   {best['LinkMargin_dB']:.1f} dB")
+    # print(f"  └─ Safety Level:  {best['Safety']}")
+    # print(f"{'='*70}")
+    
+    # # return df_results.head(top_n)
+    # print(f"ini adalah SF : {best['SF']}")
+    return [SF_TO_DR[best['SF']], best['Freq_MHz'], best['TxPower_dBm']]
+
+
+
+
+
+
+
+def ml_predict(num_nodes, radius_meters):
+    b = generate_positions(num_nodes, radius_meters)
+    params_values = []
+    for i in b:
+        
+        # print(i)
+        print("INI ADALAH JARAK NODE")
+        print(i['distance'])
+        print("INI ADALAH JARAK NODE")
+        print(i['nodeIndex'])
+        params = find_best_config(i['distance'], safety_margin_dB=2, pdr_threshold=80, top_n=1)
+
+
+        params_values.append({
+                'experiment': 1,
+                'nodeId': i['nodeIndex'],
+                'combId': 0,
+                'dr': params[0],
+                'freq': int(params[1]*1000000),
+                'txPower': params[2]
+        })
+
+    nama_file = f'experiment_schedule.csv'
+    df = pd.DataFrame(params_values)
+    df.to_csv(nama_file, index=False)
+    
+
+    return print(f"✓ Saved Postion to: node_positions.csv & parameters to: experiment_schedule.csv")
+
+
+
+ml_predict(500, 5000)

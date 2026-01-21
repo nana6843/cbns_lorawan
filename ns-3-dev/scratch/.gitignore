@@ -6,3 +6,10 @@
 !subdir/
 !scratch-simulator.cc
 !CMakeLists.txt
+!adr-baseline/
+!adr-example-no_modif/
+!complete-network/
+!dataset-gen/
+!dataset_ml/
+!dataset_netanim/
+!simulasi/
